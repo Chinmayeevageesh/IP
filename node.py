@@ -16,7 +16,36 @@ METADATA = {}
 
 # Resource IDs: letters, numbers, underscores and hyphens only.
 RESOURCE_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,100}$")
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
+def load_metadata():
+    """Rebuild resource metadata from files in storage."""
+    for target in BASE.iterdir():
+        if not target.is_file():
+            continue
+
+        resource_id = target.name
+
+        if not RESOURCE_ID_PATTERN.fullmatch(resource_id):
+            continue
+
+        try:
+            data = target.read_bytes()
+        except OSError:
+            continue
+
+        METADATA[resource_id] = {
+            "filename": resource_id,
+            "sha256": hashlib.sha256(data).hexdigest(),
+            "size": len(data)
+        }
+
+
+load_metadata()
+
+# Resource IDs: letters, numbers, underscores and hyphens only.
+RESOURCE_ID_PATTERN = re.compile(r"^[A-Za-z0-9_-]{1,100}$")
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 
 def validate_resource_id(resource_id: str) -> Path:
     """Validate resource ID and return its safe storage path."""
@@ -83,7 +112,20 @@ async def receive_resource(
 
     target = validate_resource_id(resource_id)
 
-    data = await upload.read()
+    data = await upload.read(MAX_FILE_SIZE + 1)
+
+    if not data:
+        raise HTTPException(
+        status_code=400,
+        detail="Empty files are not allowed"
+        )
+
+    if len(data) > MAX_FILE_SIZE:
+        raise HTTPException(
+        status_code=413,
+        detail="File exceeds maximum size of 10 MB"
+        )
+
     digest = hashlib.sha256(data).hexdigest()
 
     try:
@@ -122,6 +164,23 @@ def download_resource(resource_id: str):
         raise HTTPException(
             status_code=404,
             detail="Resource not found"
+        )
+
+    try:
+        data = target.read_bytes()
+    except OSError:
+        raise HTTPException(
+            status_code=500,
+            detail="Could not read resource"
+        )
+
+    actual_hash = hashlib.sha256(data).hexdigest()
+    expected_hash = METADATA[resource_id]["sha256"]
+
+    if actual_hash != expected_hash:
+        raise HTTPException(
+            status_code=500,
+            detail="Resource integrity check failed"
         )
 
     return FileResponse(target)
