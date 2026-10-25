@@ -1,0 +1,39 @@
+OFFLINE-FIRST CAMPUS RESOURCE NETWORK
+DEMO TEST RESULTS
+
+Nodes:
+A - Port 8001
+B - Port 8002
+C - Port 8003
+D - Port 8004
+
+Required quorum: 3
+
+Initial holders: A, B, C
+Initial count: 3
+Initial status: QUORUM SATISFIED
+
+After C disconnects:
+Available holders: A, B
+Count: 2
+Status: QUORUM DEFICIT
+
+Recovery:
+Selected target: D
+Resource replicated: assignment2
+
+After recovery:
+Available holders: A, B, D
+Count: 3
+Status: QUORUM SATISFIED
+
+Recovered file verification:
+HTTP status: 200
+SHA-256: 460833f26e37fcdee7c81a6ecb70ea92b9f9ccafa0d6772bf505bbe527d11b07
+File size: 350 bytes
+Hash verification: PASSED
+
+Note:
+Successful local simulation. Production fault tolerance,
+independent replica integrity checks, and patentability
+have not been established by this demonstration.
