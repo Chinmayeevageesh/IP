@@ -37,3 +37,44 @@ Note:
 Successful local simulation. Production fault tolerance,
 independent replica integrity checks, and patentability
 have not been established by this demonstration.
+
+
+ 
+ADDITIONAL TEST RESULTS — PEER COMMUNICATION AND FILE TRANSFER
+
+1. PEER REGISTRATION
+All four nodes (A, B, C, D) registered their other three peers successfully.
+Total successful registrations: 12
+Result: PASSED
+
+2. FILE DISTRIBUTION
+File: sample_assignment.pdf
+Resource ID: member2_demo
+Destination: Node A
+Distribution result: SUCCESS
+SHA-256 verification: PASSED
+
+3. FILE DOWNLOAD AND INTEGRITY
+Downloaded from: Node A
+Downloaded file: downloaded_demo.pdf
+File size: 51 bytes
+SHA-256: 02b0d82be5350740677e3ef6ed6d5b4d09a8eb81d216c66f6d21b69d668a562c
+Original and downloaded file hash comparison: TRUE
+Result: PASSED
+
+4. AUTOMATED TESTS
+Command: python -m pytest test_node.py -v
+
+test_upload_and_duplicate: PASSED
+test_offline_rejects_upload_and_restore: PASSED
+
+Total: 2 passed, 0 failed
+
+Note: A Starlette deprecation warning appeared, but both tests passed.
+
+OVERALL RESULT
+The local prototype demonstrated peer registration, file distribution, file download, SHA-256 integrity verification, duplicate handling, offline upload rejection, and quorum recovery.
+
+The quorum-recovery test used resource ID assignment2, while the file-transfer test used member2_demo. Their file sizes and hashes are therefore different.
+
+These results do not establish production fault tolerance or patentability.
