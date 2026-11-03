@@ -17,6 +17,7 @@ BASE.mkdir(parents=True, exist_ok=True)
 REGISTRY_FILE = BASE / "_node_registry.json"
 
 ONLINE = True
+NODE_VERSION = 1
 METADATA = {}
 PEERS = {}
 LOCK = Lock()
@@ -99,6 +100,7 @@ def status():
     return {
         "node_id": NODE_ID,
         "online": ONLINE,
+"version": NODE_VERSION,
         "resources": sorted(METADATA.keys()),
         "free_storage_mb": 1024,
         "registered_peers": sorted(PEERS.keys()),
