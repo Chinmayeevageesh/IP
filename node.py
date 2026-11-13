@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pathlib import Path
 from threading import Lock
@@ -9,6 +10,13 @@ import re
 import tempfile
 
 app = FastAPI(title="Campus Offline Node - Member 2")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 NODE_ID = os.getenv("NODE_ID", "NODE")
 BASE = Path(os.getenv("NODE_STORAGE", f"./storage_{NODE_ID}")).resolve()
@@ -344,8 +352,12 @@ def download_resource(resource_id: str):
             detail="Stored resource failed integrity check",
         )
 
+    original_filename = METADATA.get(resource_id, {}).get(
+    "filename", target.name
+)
+
     return FileResponse(
-        target,
-        filename=target.name,
-        headers={"X-Content-SHA256": actual},
-    )
+    target,
+    filename=original_filename,
+    headers={"X-Content-SHA256": actual},
+)

@@ -199,9 +199,9 @@ def run_recovery_simulation_tests():
     }
 
     with patch(
-        "quorum_recovery.validate_candidate",
-        return_value=failed_validation
-    ):
+    __name__ + ".validate_candidate",
+    return_value=failed_validation
+):
         failure_res = select_recovery_devices(
             required_quorum=3,
             verified_holders=["A", "B"],

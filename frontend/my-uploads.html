@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - My Uploads</title>
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div id="wrapper">
+
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"
+           href="index.html">
+            <i class="fas fa-graduation-cap"></i>
+            <div class="sidebar-brand-text mx-2">CampusConnect</div>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <li class="nav-item">
+            <a class="nav-link" href="index.html">
+                <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Student Menu</div>
+
+        <li class="nav-item">
+            <a class="nav-link" href="browse.html">
+                <i class="fas fa-book"></i><span>Browse Resources</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="upload.html">
+                <i class="fas fa-upload"></i><span>Upload Resources</span>
+            </a>
+        </li>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="my-uploads.html">
+                <i class="fas fa-folder"></i><span>My Uploads</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Campus Network</div>
+
+        <li class="nav-item">
+            <a class="nav-link" href="network-status.html">
+                <i class="fas fa-chart-area"></i><span>Network Status</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="help.html">
+                <i class="fas fa-question-circle"></i><span>Help</span>
+            </a>
+        </li>
+    </ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
+                <span class="h5 mb-0 text-gray-800">My Uploaded Resources</span>
+            </nav>
+
+            <div class="container-fluid">
+
+                <h1 class="h3 mb-2 text-gray-800">My Uploads</h1>
+                <p class="mb-4">View resources you have uploaded through this browser.</p>
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            Uploaded Resources
+                        </h6>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Resource Name</th>
+                                        <th>Category</th>
+                                        <th>Node</th>
+                                        <th>Upload Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="uploadList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const uploads = JSON.parse(localStorage.getItem("myUploads") || "[]");
+const list = document.getElementById("uploadList");
+
+if (uploads.length === 0) {
+    list.innerHTML = `
+        <tr>
+            <td colspan="5" class="text-center">
+                You haven't uploaded any resources through this browser yet.
+            </td>
+        </tr>`;
+} else {
+    uploads.forEach(item => {
+        const row = document.createElement("tr");
+
+        [item.name, item.category, "Node " + item.node, item.date]
+            .forEach(value => {
+                const cell = document.createElement("td");
+                cell.textContent = value;
+                row.appendChild(cell);
+            });
+
+        const action = document.createElement("td");
+        const button = document.createElement("button");
+
+        button.className = "btn btn-primary btn-sm";
+        button.textContent = "Download";
+
+        button.onclick = async () => {
+            try {
+                const ports = {A:8001, B:8002, C:8003, D:8004};
+                const response = await fetch(
+                    `http://127.0.0.1:${ports[item.node]}/resource/${encodeURIComponent(item.resourceId)}`
+                );
+
+                if (!response.ok) throw new Error("Resource unavailable");
+
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+
+                link.href = url;
+                link.download = item.resourceId;
+                link.click();
+
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } catch (error) {
+                alert("Download failed: " + error.message);
+            }
+        };
+
+        action.appendChild(button);
+        row.appendChild(action);
+        list.appendChild(row);
+    });
+}
+</script>
+
+</body>
+</html>

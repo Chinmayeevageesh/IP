@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Network Status</title>
+
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+<div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
+
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"
+           href="index.html">
+            <i class="fas fa-graduation-cap"></i>
+            <div class="sidebar-brand-text mx-2">CampusConnect</div>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <li class="nav-item">
+            <a class="nav-link" href="index.html">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Student Menu</div>
+
+        <li class="nav-item">
+            <a class="nav-link" href="browse.html">
+                <i class="fas fa-book"></i>
+                <span>Browse Resources</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="upload.html">
+                <i class="fas fa-upload"></i>
+                <span>Upload Resources</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="my-uploads.html">
+                <i class="fas fa-folder"></i>
+                <span>My Uploads</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Campus Network</div>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="network-status.html">
+                <i class="fas fa-chart-area"></i>
+                <span>Network Status</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="help.html">
+                <i class="fas fa-question-circle"></i>
+                <span>Help</span>
+            </a>
+        </li>
+
+    </ul>
+
+    <!-- Main Content -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <div id="content">
+
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
+                <span class="h5 mb-0 text-gray-800">Campus Network Monitoring</span>
+            </nav>
+
+            <div class="container-fluid">
+
+                <h1 class="h3 mb-2 text-gray-800">Network Status</h1>
+
+                <p class="mb-4">
+                    Monitor the availability of all four campus nodes
+                    and their stored academic resources.
+                </p>
+
+                <!-- Summary Cards -->
+                <div class="row">
+
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Nodes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="totalNodes">4</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Online Nodes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="onlineNodes">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-4 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    Offline Nodes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" id="offlineNodes">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Node Details -->
+                <div class="card shadow mb-4">
+
+                    <div class="card-header py-3 d-flex justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            Campus Node Details
+                        </h6>
+
+                        <button class="btn btn-primary btn-sm" onclick="loadNodes()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered">
+
+                                <thead>
+                                    <tr>
+                                        <th>Node</th>
+                                        <th>Status</th>
+                                        <th>Version</th>
+                                        <th>Stored Resources</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="nodeTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            Loading node information...
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <p class="text-muted small mb-0" id="lastUpdated">
+                            Waiting for node information...
+                        </p>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+const nodes = [
+    {id: "A", url: "http://127.0.0.1:8001"},
+    {id: "B", url: "http://127.0.0.1:8002"},
+    {id: "C", url: "http://127.0.0.1:8003"},
+    {id: "D", url: "http://127.0.0.1:8004"}
+];
+
+async function loadNodes() {
+
+    const table = document.getElementById("nodeTable");
+    table.innerHTML = "";
+
+    let online = 0;
+    let offline = 0;
+
+    for (const node of nodes) {
+
+        try {
+
+            const response = await fetch(`${node.url}/status`);
+
+            if (!response.ok) {
+                throw new Error("Node unavailable");
+            }
+
+            const data = await response.json();
+
+            if (!data.online) {
+                offline++;
+            } else {
+                online++;
+            }
+
+            const statusBadge = data.online
+                ? '<span class="badge badge-success">Online</span>'
+                : '<span class="badge badge-danger">Offline</span>';
+
+            const row = document.createElement("tr");
+
+            const name = document.createElement("td");
+            name.textContent = "Node " + node.id;
+
+            const status = document.createElement("td");
+            status.innerHTML = statusBadge;
+
+            const version = document.createElement("td");
+            version.textContent = data.version ?? "N/A";
+
+            const count = document.createElement("td");
+            count.textContent = Array.isArray(data.resources)
+                ? data.resources.length
+                : "N/A";
+
+            row.append(name, status, version, count);
+            table.appendChild(row);
+
+        } catch (error) {
+
+            offline++;
+
+            const row = document.createElement("tr");
+
+            const name = document.createElement("td");
+            name.textContent = "Node " + node.id;
+
+            const status = document.createElement("td");
+            status.innerHTML = '<span class="badge badge-danger">Unreachable</span>';
+
+            const version = document.createElement("td");
+            version.textContent = "N/A";
+
+            const count = document.createElement("td");
+            count.textContent = "N/A";
+
+            row.append(name, status, version, count);
+            table.appendChild(row);
+        }
+    }
+
+    document.getElementById("onlineNodes").textContent = online;
+    document.getElementById("offlineNodes").textContent = offline;
+
+    document.getElementById("lastUpdated").textContent =
+        "Last updated: " + new Date().toLocaleTimeString();
+}
+
+loadNodes();
+
+setInterval(loadNodes, 5000);
+
+</script>
+
+</body>
+</html>
