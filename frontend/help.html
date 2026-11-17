@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Help</title>
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="wrapper">
+
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/portal/index.html">
+            <i class="fas fa-graduation-cap"></i>
+            <div class="sidebar-brand-text mx-2">CampusConnect</div>
+        </a>
+        <hr class="sidebar-divider">
+
+        <li class="nav-item"><a class="nav-link" href="/portal/index.html"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Student Menu</div>
+
+        <li class="nav-item"><a class="nav-link" href="/portal/browse.html"><i class="fas fa-book"></i><span>Browse Resources</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="/portal/upload.html"><i class="fas fa-upload"></i><span>Upload Resources</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="/portal/my-uploads.html"><i class="fas fa-folder"></i><span>My Uploads</span></a></li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Campus Network</div>
+
+        <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-chart-area"></i><span>Network Status</span></a></li>
+        <li class="nav-item active"><a class="nav-link" href="/portal/help.html"><i class="fas fa-question-circle"></i><span>Help</span></a></li>
+    </ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
+                <span class="h5 mb-0 text-gray-800">Help & Support</span>
+            </nav>
+
+            <div class="container-fluid">
+                <h1 class="h3 mb-2 text-gray-800">How to Use CampusConnect</h1>
+                <p class="mb-4">A quick guide to using the campus academic resource network.</p>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+
+                        <h5 class="font-weight-bold text-primary">1. Browse Resources</h5>
+                        <p>Open Browse Resources to view academic materials available across the campus nodes. Use the search box to find a resource and click Download to access it.</p>
+
+                        <hr>
+
+                        <h5 class="font-weight-bold text-primary">2. Upload Resources</h5>
+                        <p>Open Upload Resources, enter a resource ID, choose a file and click Upload Resource. The network stores and verifies enough replicas to meet quorum 3. Files must not exceed 10 MB.</p>
+
+                        <hr>
+
+                        <h5 class="font-weight-bold text-primary">3. My Uploads</h5>
+                        <p>View the resources uploaded through your current browser. You can use the Download button to retrieve them.</p>
+
+                        <hr>
+
+                        <h5 class="font-weight-bold text-primary">4. Network Status</h5>
+                        <p>Check whether Nodes A, B, C and D are online or unreachable in the admin dashboard. The page automatically refreshes node information.</p>
+
+                        <hr>
+
+                        <h5 class="font-weight-bold text-primary">5. File Integrity</h5>
+                        <p>CampusConnect uses SHA-256 hashing to generate file integrity checksums and help detect changes to stored resources.</p>
+
+                        <hr>
+
+                        <h5 class="font-weight-bold text-primary">Troubleshooting</h5>
+                        <ul>
+                            <li>If a node is unreachable, check whether its backend server is running.</li>
+                            <li>If an upload fails, check the file size and whether at least three campus nodes are online.</li>
+                            <li>If a download fails, verify that the resource is still stored on its node.</li>
+                            <li>Keep the required backend node servers running while using the prototype.</li>
+                        </ul>
+
+                        <div class="alert alert-info mt-4">
+                            <strong>Note:</strong> CampusConnect is an academic prototype demonstrating offline-first resource sharing through simulated campus nodes.
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

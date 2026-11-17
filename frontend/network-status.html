@@ -1,0 +1,530 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Admin Dashboard</title>
+
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body id="page-top">
+
+<div id="wrapper">
+
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
+
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"
+           href="/dashboard">
+            <i class="fas fa-graduation-cap"></i>
+            <div class="sidebar-brand-text mx-2">CampusConnect</div>
+        </a>
+
+        <hr class="sidebar-divider">
+
+        <li class="nav-item">
+            <a class="nav-link" href="/dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+        </li>
+
+        <hr class="sidebar-divider">
+        <div class="sidebar-heading">Administration</div>
+
+        <li class="nav-item active">
+            <a class="nav-link" href="/dashboard">
+                <i class="fas fa-server"></i>
+                <span>Admin Dashboard</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="/portal/index.html">
+                <i class="fas fa-user-graduate"></i>
+                <span>Student Portal</span>
+            </a>
+        </li>
+
+    </ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+
+        <div id="content">
+
+            <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 shadow">
+                <span class="h5 mb-0 text-gray-800">
+                    Campus Network Administration
+                </span>
+            </nav>
+
+            <div class="container-fluid">
+
+                <h1 class="h3 mb-2 text-gray-800">
+                    Admin Dashboard
+                </h1>
+
+                <p class="mb-4">
+                    Monitor campus nodes, verify resource replicas,
+                    track quorum status and manage recovery operations.
+                </p>
+
+                <!-- Summary cards -->
+
+                <div class="row">
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Total Nodes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                     id="totalNodes">4</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Online Nodes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                     id="onlineNodes">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    Offline Nodes
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                     id="offlineNodes">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-info shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Verified Holders
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800"
+                                     id="verifiedHolders">--</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Quorum section -->
+
+                <div class="row">
+
+                    <div class="col-lg-12 mb-4">
+
+                        <div class="card shadow">
+
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    Quorum Monitoring
+                                </h6>
+                            </div>
+
+                            <div class="card-body">
+
+                                <div class="row align-items-center">
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="text-xs font-weight-bold text-uppercase text-muted">
+                                            Resource ID
+                                        </div>
+                                        <div class="h5 font-weight-bold text-gray-800"
+                                             id="resourceId">--</div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="text-xs font-weight-bold text-uppercase text-muted">
+                                            Required Quorum
+                                        </div>
+                                        <div class="h5 font-weight-bold text-gray-800"
+                                             id="requiredQuorum">--</div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-3">
+                                        <div class="text-xs font-weight-bold text-uppercase text-muted">
+                                            Available Holders
+                                        </div>
+                                        <div class="h5 font-weight-bold text-gray-800"
+                                             id="availableHolders">--</div>
+                                    </div>
+
+                                </div>
+
+                                <div class="progress mb-3" style="height: 20px;">
+                                    <div id="quorumProgress"
+                                         class="progress-bar bg-success"
+                                         role="progressbar"
+                                         style="width: 0%">
+                                        0%
+                                    </div>
+                                </div>
+
+                                <h5 id="quorumStatus" class="font-weight-bold">
+                                    Loading quorum information...
+                                </h5>
+
+                                <p class="text-muted mb-0" id="quorumHolders">
+                                    Verified holders: Loading...
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Node details -->
+
+                <div class="card shadow mb-4">
+
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            Campus Node Details
+                        </h6>
+
+                        <button class="btn btn-primary btn-sm"
+                                onclick="loadOverview()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="table-responsive">
+
+                            <table class="table table-bordered">
+
+                                <thead>
+                                    <tr>
+                                        <th>Node</th>
+                                        <th>Status</th>
+                                        <th>Version</th>
+                                        <th>Stored Resources</th>
+                                        <th>Resource Details</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="nodeTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+
+                        </div>
+
+                        <p class="text-muted small mb-0" id="lastUpdated">
+                            Waiting for information...
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- Recovery section -->
+
+                <div class="card shadow mb-4">
+
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            Quorum Recovery Management
+                        </h6>
+                    </div>
+
+                    <div class="card-body">
+
+                        <p class="text-muted">
+                            Check the current quorum and initiate resource
+                            replication to eligible recovery candidates
+                            when a quorum deficit exists.
+                        </p>
+
+                        <button id="recoveryButton"
+                                class="btn btn-warning"
+                                onclick="runRecovery()">
+                            <i class="fas fa-sync-alt"></i>
+                            Initiate Recovery
+                        </button>
+
+                        <div id="recoveryResult" class="mt-4">
+                            <p class="text-muted">
+                                No recovery operation performed yet.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function apiRequest(endpoint, options = {}) {
+
+    const response = await fetch(endpoint, options);
+
+    if (!response.ok) {
+        const message = await response.text();
+        throw new Error(message || "API request failed");
+    }
+
+    return response.json();
+}
+
+
+function createCell(text) {
+    const cell = document.createElement("td");
+    cell.textContent = text;
+    return cell;
+}
+
+
+function renderNodes(nodes) {
+
+    const table = document.getElementById("nodeTable");
+    table.innerHTML = "";
+
+    nodes.forEach(node => {
+
+        const row = document.createElement("tr");
+
+        row.appendChild(createCell("Node " + node.node_id));
+
+        const statusCell = document.createElement("td");
+        const badge = document.createElement("span");
+
+        badge.className = node.online
+            ? "badge badge-success"
+            : "badge badge-danger";
+
+        badge.textContent = node.online ? "Online" : "Offline";
+
+        statusCell.appendChild(badge);
+        row.appendChild(statusCell);
+
+        row.appendChild(createCell(node.version));
+
+        row.appendChild(
+            createCell(node.resources.length)
+        );
+
+        row.appendChild(
+            createCell(node.resources.join(", ") || "No resources")
+        );
+
+        table.appendChild(row);
+    });
+}
+
+
+function renderQuorum(quorum) {
+
+    const required = quorum.required_quorum;
+    const available = quorum.available_holders;
+
+    const percentage = required > 0
+        ? Math.min(100, (available / required) * 100)
+        : 0;
+
+    document.getElementById("resourceId").textContent =
+        quorum.resource_id;
+
+    document.getElementById("requiredQuorum").textContent =
+        required;
+
+    document.getElementById("availableHolders").textContent =
+        available;
+
+    document.getElementById("verifiedHolders").textContent =
+        available;
+
+    const progress = document.getElementById("quorumProgress");
+
+    progress.style.width = percentage + "%";
+    progress.textContent = Math.round(percentage) + "%";
+
+    const status = document.getElementById("quorumStatus");
+
+    if (quorum.deficit === 0) {
+
+        status.textContent = "QUORUM SATISFIED";
+        status.className = "font-weight-bold text-success";
+
+        progress.className = "progress-bar bg-success";
+
+    } else {
+
+        status.textContent =
+            "QUORUM DEFICIT - " + quorum.deficit + " additional replica(s) needed";
+
+        status.className = "font-weight-bold text-danger";
+
+        progress.className = "progress-bar bg-danger";
+    }
+
+    document.getElementById("quorumHolders").textContent =
+        "Verified holders: " +
+        (quorum.verified_holders.join(", ") || "None");
+}
+
+
+async function loadOverview() {
+
+    try {
+
+        const data = await apiRequest("/api/overview");
+
+        document.getElementById("onlineNodes").textContent =
+            data.online_nodes;
+
+        document.getElementById("offlineNodes").textContent =
+            data.offline_nodes;
+
+        renderNodes(data.nodes);
+        renderQuorum(data.quorum);
+
+        document.getElementById("lastUpdated").textContent =
+            "Last updated: " + new Date().toLocaleTimeString();
+
+    } catch (error) {
+
+        document.getElementById("lastUpdated").textContent =
+            "Unable to connect to Admin API: " + error.message;
+    }
+}
+
+
+async function runRecovery() {
+
+    const button = document.getElementById("recoveryButton");
+    const result = document.getElementById("recoveryResult");
+
+    if (!confirm("Do you want to initiate quorum recovery?")) {
+        return;
+    }
+
+    button.disabled = true;
+    button.innerHTML =
+        '<i class="fas fa-spinner fa-spin"></i> Recovering...';
+
+    result.textContent = "Recovery operation in progress...";
+
+    try {
+
+        const data = await apiRequest("/api/recovery", {
+            method: "POST"
+        });
+
+        result.innerHTML = "";
+
+        const heading = document.createElement("h5");
+
+        const restored = data.after.deficit === 0;
+
+        heading.className = restored
+            ? "text-success font-weight-bold"
+            : "text-danger font-weight-bold";
+
+        heading.textContent = data.message;
+
+        result.appendChild(heading);
+
+        const details = document.createElement("p");
+
+        details.textContent =
+            "Before recovery: " +
+            data.before.available_holders +
+            " verified holders. After recovery: " +
+            data.after.available_holders +
+            " verified holders.";
+
+        result.appendChild(details);
+
+        const selected = document.createElement("p");
+
+        selected.textContent =
+            "Selected candidates: " +
+            ((data.selection?.selected_devices || []).join(", ") || "None");
+
+        result.appendChild(selected);
+
+        const successful = document.createElement("p");
+
+        successful.textContent =
+            "Successful transfers: " +
+            ((data.successful_transfers || []).join(", ") || "None");
+
+        result.appendChild(successful);
+
+        if (data.failed_transfers &&
+            Object.keys(data.failed_transfers).length > 0) {
+
+            const failures = document.createElement("pre");
+
+            failures.textContent =
+                JSON.stringify(data.failed_transfers, null, 2);
+
+            result.appendChild(failures);
+        }
+
+        await loadOverview();
+
+    } catch (error) {
+
+        result.textContent =
+            "Recovery failed: " + error.message;
+    }
+
+    finally {
+
+        button.disabled = false;
+
+        button.innerHTML =
+            '<i class="fas fa-sync-alt"></i> Initiate Recovery';
+    }
+}
+
+
+// Initial dashboard load
+loadOverview();
+
+// Refresh node and quorum information every five seconds
+setInterval(loadOverview, 5000);
+
+</script>
+
+</body>
+</html>

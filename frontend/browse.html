@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CampusConnect | Browse Resources</title>
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fc; }
+        .resource-card { border-left: 4px solid #4e73df; }
+        .resource-id { font-size: 12px; color: #858796; }
+    </style>
+</head>
+<body>
+<div id="wrapper">
+
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/portal/index.html">
+            <i class="fas fa-graduation-cap mr-2"></i>
+            <span>CampusConnect</span>
+        </a>
+        <hr class="sidebar-divider">
+        <li class="nav-item"><a class="nav-link" href="/portal/index.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+        <li class="nav-item active"><a class="nav-link" href="/portal/browse.html"><i class="fas fa-book"></i><span>Browse Resources</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="/portal/upload.html"><i class="fas fa-upload"></i><span>Upload Resources</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="/portal/my-uploads.html"><i class="fas fa-folder"></i><span>My Uploads</span></a></li>
+        <hr class="sidebar-divider">
+        <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-network-wired"></i><span>Network Status</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="/portal/help.html"><i class="fas fa-question-circle"></i><span>Help</span></a></li>
+    </ul>
+
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div id="content">
+            <nav class="navbar navbar-light bg-white shadow mb-4">
+                <span class="font-weight-bold text-primary">Student Resource Portal</span>
+                <span class="text-gray-600">Browse Resources</span>
+            </nav>
+
+            <div class="container-fluid">
+                <h1 class="h3 mb-2 text-gray-800">Browse Academic Resources</h1>
+                <p class="mb-4 text-gray-600">Find and download resources shared across campus nodes.</p>
+
+                <div class="card shadow mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-9 mb-2">
+                                <input type="text" id="searchInput" class="form-control"
+                                    placeholder="Search by resource ID...">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary btn-block" onclick="loadResources()">
+                                    <i class="fas fa-sync-alt mr-1"></i> Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="nodeAvailability" class="alert alert-info">Checking nodes...</div>
+                <div id="message" class="alert alert-info">Loading resources...</div>
+                <div class="row" id="resourceList"></div>
+            </div>
+        </div>
+
+        <footer class="sticky-footer bg-white">
+            <div class="container my-auto text-center">
+                <span>CampusConnect | Academic Resource Network</span>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<script>
+let allResources = [];
+
+async function loadResources() {
+    const message = document.getElementById("message");
+    const list = document.getElementById("resourceList");
+    const nodeAvailability = document.getElementById("nodeAvailability");
+
+    message.textContent = "Loading resources...";
+    list.innerHTML = "";
+    allResources = [];
+
+    try {
+        const response = await fetch("/api/resources", { cache: "no-store" });
+        if (!response.ok) {
+            throw new Error("Unable to load resource inventory.");
+        }
+        const data = await response.json();
+        allResources = data.resources;
+        const onlineNodes = data.nodes
+            .filter(node => node.online)
+            .map(node => `Node ${node.node_id}`);
+        const offlineNodes = data.nodes
+            .filter(node => !node.online)
+            .map(node => `Node ${node.node_id}`);
+        nodeAvailability.className =
+            offlineNodes.length ? "alert alert-warning" : "alert alert-success";
+        nodeAvailability.textContent =
+            `Online: ${onlineNodes.join(", ") || "None"}; Offline: ${offlineNodes.join(", ") || "None"}`;
+        displayResources(allResources);
+    } catch (error) {
+        nodeAvailability.className = "alert alert-danger";
+        nodeAvailability.textContent = `Unable to load node availability: ${error.message}`;
+        message.className = "alert alert-danger";
+        message.textContent = "Resource availability could not be loaded.";
+    }
+}
+
+function displayResources(resources) {
+    const list = document.getElementById("resourceList");
+    const message = document.getElementById("message");
+
+    list.innerHTML = "";
+
+    if (resources.length === 0) {
+        message.className = "alert alert-warning";
+        message.textContent = "No resources are currently available.";
+        return;
+    }
+
+    message.className = "alert alert-success";
+    message.textContent = `${resources.length} resources found.`;
+
+    resources.forEach(resource => {
+        const column = document.createElement("div");
+        column.className = "col-lg-4 col-md-6 mb-4";
+        const card = document.createElement("div");
+        card.className = "card shadow h-100 resource-card";
+        const body = document.createElement("div");
+        body.className = "card-body";
+        const id = document.createElement("h6");
+        id.className = "font-weight-bold text-gray-800";
+        id.textContent = resource.resource_id;
+        const availability = document.createElement("p");
+        availability.className = "resource-id";
+        availability.textContent =
+            `${resource.replica_count} verified replica(s): ${resource.verified_holders.join(", ") || "None"}`;
+        const button = document.createElement("button");
+        button.className = "btn btn-primary btn-sm btn-block";
+        button.innerHTML = '<i class="fas fa-download mr-1"></i> Download';
+        button.addEventListener("click", () => downloadResource(resource));
+        body.append(id, availability, button);
+        card.appendChild(body);
+        column.appendChild(card);
+        list.appendChild(column);
+    });
+}
+
+async function downloadResource(resource) {
+    const message = document.getElementById("message");
+    try {
+        const response = await fetch(
+            `/api/resources/${encodeURIComponent(resource.resource_id)}`
+        );
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || "Download failed.");
+        }
+        const blob = await response.blob();
+        const expectedHash = response.headers.get("X-Content-SHA256");
+        const digestBuffer = await crypto.subtle.digest("SHA-256", await blob.arrayBuffer());
+        const actualHash = Array.from(new Uint8Array(digestBuffer))
+            .map(byte => byte.toString(16).padStart(2, "0"))
+            .join("");
+        if (!expectedHash || actualHash !== expectedHash.toLowerCase()) {
+            throw new Error("Downloaded file failed SHA-256 verification.");
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = resource.filename || resource.resource_id;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        message.className = "alert alert-success";
+        message.textContent = `Downloaded ${resource.resource_id}; SHA-256 verified.`;
+    } catch (error) {
+        message.className = "alert alert-danger";
+        message.textContent = `Download failed: ${error.message}`;
+    }
+}
+
+document.getElementById("searchInput").addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    displayResources(allResources.filter(r => r.id.toLowerCase().includes(query)));
+});
+
+loadResources();
+</script>
+</body>
+</html>

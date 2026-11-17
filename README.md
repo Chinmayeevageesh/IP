@@ -98,6 +98,171 @@ python -m uvicorn node:app --host 127.0.0.1 --port 8004
 
 Do not start two servers on the same port. If a port is already in use, find the terminal running that node, stop it with `Ctrl+C`, and then restart it.
 
+## Admin API and Dashboard
+
+After starting the node processes, open a fifth terminal in the project directory:
+
+```powershell
+python -m uvicorn admin_api:app --host 127.0.0.1 --port 8010
+```
+
+Open the dashboard at <http://127.0.0.1:8010/dashboard>. It is served by the
+Admin API, so its API requests and dashboard assets use the same origin. The
+API health check is at <http://127.0.0.1:8010/api/health>.
+
+The admin quorum view checks the configured `assignment2` resource from
+`sample_assignment.pdf` and counts only online copies whose SHA-256 hash
+matches that file.
+
+## Integrated Portal, Configuration and Demo
+
+### Dependencies
+
+Install the runtime dependencies from the repository root:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+For the test suite, install its test-only dependencies:
+
+```powershell
+python -m pip install pytest httpx
+```
+
+The portal is served by the Admin API; there is no separate frontend server,
+proxy or Node.js dependency. Browser requests use same-origin `/api/...` URLs,
+so CORS is not needed for this local deployment.
+
+### Environment variables
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `NODE_ID` | `NODE` | Identity returned by the node's `/status` endpoint. Set to A, B, C or D for each process. |
+| `NODE_STORAGE` | `.\storage_<NODE_ID>` | Persistent files and peer registry for that node. Use a distinct directory per node. |
+| `CAMPUS_NODE_A_URL` through `CAMPUS_NODE_D_URL` | `http://127.0.0.1:8001` through `:8004` | Node addresses used by the controller, Admin API and peer client. |
+| `CAMPUS_ADMIN_DATA_DIR` | `.\storage_admin` | Persistent resource ID, filename and SHA-256 registry used by portal recovery. |
+| `RESOURCE_ID` | `assignment2` | Controller's default demo resource. |
+| `RESOURCE_FILE` | `sample_assignment.pdf` | Controller's default demo file. |
+
+### Start services
+
+Run each command in its own PowerShell terminal from the project directory.
+Keep all five terminals open.
+
+```powershell
+# Node A
+$env:NODE_ID="A"
+$env:NODE_STORAGE=".\storage_A"
+python -m uvicorn node:app --host 127.0.0.1 --port 8001
+```
+
+```powershell
+# Node B
+$env:NODE_ID="B"
+$env:NODE_STORAGE=".\storage_B"
+python -m uvicorn node:app --host 127.0.0.1 --port 8002
+```
+
+```powershell
+# Node C
+$env:NODE_ID="C"
+$env:NODE_STORAGE=".\storage_C"
+python -m uvicorn node:app --host 127.0.0.1 --port 8003
+```
+
+```powershell
+# Node D
+$env:NODE_ID="D"
+$env:NODE_STORAGE=".\storage_D"
+python -m uvicorn node:app --host 127.0.0.1 --port 8004
+```
+
+```powershell
+# Admin API (also serves the student portal and admin dashboard)
+$env:CAMPUS_ADMIN_DATA_DIR=".\storage_admin"
+python -m uvicorn admin_api:app --host 127.0.0.1 --port 8010
+```
+
+Open the student portal at <http://127.0.0.1:8010/> (or
+<http://127.0.0.1:8010/portal/index.html>), the upload page at
+<http://127.0.0.1:8010/portal/upload.html>, the resource browser at
+<http://127.0.0.1:8010/portal/browse.html>, and the admin dashboard at
+<http://127.0.0.1:8010/dashboard>.
+
+If port 8010 is already in use, do not stop an unknown process. Start the API
+on another port, for example `8011`; the portal and API requests use relative
+URLs and continue working at that port.
+
+### API routes
+
+The student-facing routes are served by `admin_api.py`:
+
+| Method and route | Purpose |
+|---|---|
+| `GET /api/health` | Admin API health check. |
+| `GET /api/nodes` | Four configured node states and their resource IDs. |
+| `GET /api/overview` | Node counts and verified default-resource quorum. |
+| `GET /api/quorum` | Verified holders, required quorum and deficit. |
+| `GET /api/resources` | Available resources, replica holders, node states and verified replica counts. |
+| `POST /api/resources/{resource_id}` | Upload form field `upload`; stores on enough online nodes to verify quorum 3. |
+| `GET /api/resources/{resource_id}` | Download an online SHA-256-verified copy; returns `X-Content-SHA256`. |
+| `POST /api/recovery?resource_id=assignment2` | Run existing candidate selection and replicate a verified source copy if needed. |
+
+Each node continues to expose `GET /status`, `POST /availability?online=true|false`,
+`GET /has/{resource_id}`, `GET /peers`, `POST /register`, `DELETE
+/register/{peer_id}`, and `POST`/`GET /resource/{resource_id}`. Node uploads
+use multipart field `upload`; the node rejects empty files, invalid IDs,
+conflicting duplicate IDs and files larger than 10 MB.
+
+### Faculty demo procedure
+
+1. Start Nodes A-D and the Admin API using the commands above. Check
+   `http://127.0.0.1:8001/status` through `:8004/status`; each should return
+   its own node ID and `online: true`.
+2. Open the student upload page. Keep Resource ID as `assignment2`, select a
+   PDF no larger than 10 MB, and upload it. The API verifies three copies;
+   by default those are Nodes A, B and C, leaving D ready for recovery.
+3. Open the admin dashboard. Confirm all nodes are online and the resource has
+   three verified replicas with quorum satisfied.
+4. In another PowerShell terminal, simulate Node C going offline:
+
+   ```powershell
+   Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8003/availability?online=false"
+   ```
+
+5. Wait for the admin dashboard refresh. It should show C offline and a quorum
+   deficit. Click **Initiate Recovery**. The API selects online Node D, copies
+   from a SHA-256-verified holder, verifies the new copy, and reports quorum
+   restored at three.
+6. Open Browse Resources and download `assignment2`; the page checks the
+   downloaded bytes against the SHA-256 response header.
+7. Restore Node C after the demo:
+
+   ```powershell
+   Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8003/availability?online=true"
+   ```
+
+8. Run the tests:
+
+   ```powershell
+   python -m pytest -q
+   ```
+
+### Suggested report screenshots
+
+- Student portal homepage with four-node status.
+- Upload form with selected PDF and resource ID.
+- Successful upload showing verified replica nodes and SHA-256.
+- Resource browser showing availability and verified replica count.
+- Successful resource download.
+- Admin dashboard with all four nodes online and quorum satisfied.
+- Node C offline and detected by the dashboard.
+- Quorum deficit before recovery.
+- Recovery showing Node D selected and transfer verified.
+- Final quorum restored to three.
+- Pytest summary showing the passing test count.
+
 ## 6. Check Node Status
 
 Open these URLs in your browser:

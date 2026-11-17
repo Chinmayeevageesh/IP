@@ -1,5 +1,6 @@
 import requests
 from unittest.mock import patch
+from network_config import NODES
 
 
 def calculate_quorum(required_quorum, verified_holders):
@@ -75,12 +76,7 @@ def select_recovery_devices(
     failed_devices = {}
 
     if not node_urls:
-        node_urls = {
-            "A": "http://127.0.0.1:8001",
-            "B": "http://127.0.0.1:8002",
-            "C": "http://127.0.0.1:8003",
-            "D": "http://127.0.0.1:8004"
-        }
+        node_urls = NODES
 
     for device in eligible_devices:
         if len(selected_devices) >= deficit:

@@ -1,17 +1,14 @@
 import hashlib
+import mimetypes
 from pathlib import Path
 import requests
 import time
+import os
 
-NODES = {
-    "A": "http://127.0.0.1:8001",
-    "B": "http://127.0.0.1:8002",
-    "C": "http://127.0.0.1:8003",
-    "D": "http://127.0.0.1:8004",
-}
+from network_config import NODES
 
-RESOURCE_ID = "assignment2"
-FILE = Path("sample_assignment.pdf")
+RESOURCE_ID = os.getenv("RESOURCE_ID", "assignment2")
+FILE = Path(os.getenv("RESOURCE_FILE", "sample_assignment.pdf"))
 REQUIRED_QUORUM = 3
 
 def node_status(node_id):
@@ -22,9 +19,13 @@ def node_status(node_id):
     except Exception:
         return {"node_id": node_id, "online": False, "resources": []}
 
-def holders():
+def holders(resource_id=RESOURCE_ID, expected_hash=None):
     result = []
-    expected_hash = hashlib.sha256(FILE.read_bytes()).hexdigest()
+
+    if expected_hash is None:
+        if resource_id != RESOURCE_ID:
+            return result
+        expected_hash = hashlib.sha256(FILE.read_bytes()).hexdigest()
 
     for node_id in NODES:
         s = node_status(node_id)
@@ -32,12 +33,12 @@ def holders():
         if not s.get("online"):
             continue
 
-        if RESOURCE_ID not in s.get("resources", []):
+        if resource_id not in s.get("resources", []):
             continue
 
         try:
             r = requests.get(
-                f"{NODES[node_id]}/resource/{RESOURCE_ID}",
+                f"{NODES[node_id]}/resource/{resource_id}",
                 timeout=3
             )
             r.raise_for_status()
@@ -63,6 +64,38 @@ def send_file(target_id):
         )
     r.raise_for_status()
     return r.json()
+
+
+def replicate_from_node(source_id, target_id, resource_id, expected_hash):
+    source_response = requests.get(
+        f"{NODES[source_id]}/resource/{resource_id}",
+        timeout=3,
+    )
+    source_response.raise_for_status()
+    content = source_response.content
+    actual_hash = hashlib.sha256(content).hexdigest()
+    if actual_hash != expected_hash:
+        raise ValueError(f"Source node {source_id} failed SHA-256 verification")
+
+    filename = resource_id
+    content_type = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+    response = requests.post(
+        f"{NODES[target_id]}/resource/{resource_id}",
+        files={"upload": (filename, content, content_type)},
+        timeout=5,
+    )
+    response.raise_for_status()
+
+    verification = requests.get(
+        f"{NODES[target_id]}/resource/{resource_id}",
+        timeout=3,
+    )
+    verification.raise_for_status()
+    verified_hash = hashlib.sha256(verification.content).hexdigest()
+    if verified_hash != expected_hash:
+        raise ValueError(f"Target node {target_id} failed SHA-256 verification")
+    return response.json()
+
 
 def show_state(label):
     hs = holders()

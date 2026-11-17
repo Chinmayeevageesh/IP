@@ -15,13 +15,7 @@ import hashlib
 import time
 from pathlib import Path
 import requests
-
-NODES = {
-    "A": "http://127.0.0.1:8001",
-    "B": "http://127.0.0.1:8002",
-    "C": "http://127.0.0.1:8003",
-    "D": "http://127.0.0.1:8004",
-}
+from network_config import NODES
 TIMEOUT = (2, 8)
 MAX_ATTEMPTS_PER_NODE = 2
 

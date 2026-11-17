@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CampusConnect | Upload Resource</title>
+<link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+
+<body>
+<div id="wrapper">
+
+<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark">
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/portal/index.html">
+        <i class="fas fa-graduation-cap mr-2"></i> CampusConnect
+    </a>
+    <hr class="sidebar-divider">
+    <li class="nav-item"><a class="nav-link" href="/portal/index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+    <li class="nav-item"><a class="nav-link" href="/portal/browse.html"><i class="fas fa-book"></i> Browse Resources</a></li>
+    <li class="nav-item active"><a class="nav-link" href="/portal/upload.html"><i class="fas fa-upload"></i> Upload Resources</a></li>
+    <li class="nav-item"><a class="nav-link" href="/portal/my-uploads.html"><i class="fas fa-folder"></i> My Uploads</a></li>
+    <hr class="sidebar-divider">
+    <li class="nav-item"><a class="nav-link" href="/dashboard"><i class="fas fa-network-wired"></i> Network Status</a></li>
+    <li class="nav-item"><a class="nav-link" href="/portal/help.html"><i class="fas fa-question-circle"></i> Help</a></li>
+</ul>
+
+<div id="content-wrapper" class="d-flex flex-column">
+<div id="content">
+
+<nav class="navbar navbar-light bg-white shadow mb-4">
+    <span class="font-weight-bold text-primary">Student Resource Portal</span>
+    <span>Upload Resource</span>
+</nav>
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Upload Academic Resource</h1>
+    <p class="mb-4">Share notes and study materials with other students.</p>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Resource Details</h6>
+        </div>
+
+        <div class="card-body">
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label>Resource ID</label>
+                    <input type="text" id="resourceId" class="form-control"
+                    value="assignment2" placeholder="Example: java_notes" required
+                    pattern="[A-Za-z0-9_.-]{1,128}">
+                    <small class="form-text text-muted">
+                        Use letters, numbers, underscore, hyphen or dot.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Select File</label>
+                    <input type="file" id="fileInput" class="form-control-file" required>
+                    <small class="form-text text-muted">Maximum file size: 10 MB.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Replica placement</label>
+                    <div class="form-control-plaintext">
+                        The network stores and verifies copies on enough online nodes
+                        to meet the quorum of 3.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-upload mr-2"></i>Upload Resource
+                </button>
+            </form>
+
+            <div id="result" class="mt-4"></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<footer class="sticky-footer bg-white">
+    <div class="container my-auto text-center">
+        CampusConnect | Academic Resource Network
+    </div>
+</footer>
+</div>
+</div>
+
+<script>
+document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const id = document.getElementById("resourceId").value.trim();
+    const file = document.getElementById("fileInput").files[0];
+    const result = document.getElementById("result");
+
+    if (!file) {
+        result.innerHTML = '<div class="alert alert-danger">Please select a file.</div>';
+        return;
+    }
+
+    if (!/^[A-Za-z0-9_.-]{1,128}$/.test(id)) {
+        result.innerHTML = '<div class="alert alert-danger">Invalid Resource ID.</div>';
+        return;
+    }
+
+    if (file.size === 0 || file.size > 10 * 1024 * 1024) {
+        result.innerHTML = '<div class="alert alert-danger">File must be between 1 byte and 10 MB.</div>';
+        return;
+    }
+
+    result.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin mr-2"></i>Uploading...</div>';
+
+    const formData = new FormData();
+    formData.append("upload", file);
+
+    try {
+        const response = await fetch(
+            `/api/resources/${encodeURIComponent(id)}`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        let data = {};
+        try {
+            data = await response.json();
+        } catch (err) {}
+
+        if (!response.ok) {
+            let errorMsg = "Upload failed";
+            if (data.detail) {
+                if (typeof data.detail === "string") {
+                    errorMsg = data.detail;
+                } else if (Array.isArray(data.detail)) {
+                    errorMsg = data.detail.map(err => err.msg || JSON.stringify(err)).join(", ");
+                } else {
+                    errorMsg = JSON.stringify(data.detail);
+                }
+            }
+            throw new Error(errorMsg);
+        }
+
+        const uploads = JSON.parse(localStorage.getItem("myUploads") || "[]")
+            .filter(item => item.resourceId !== id);
+        uploads.push({
+            name: file.name,
+            category: "General",
+            node: (data.verified_nodes || []).join(", "),
+            date: new Date().toLocaleDateString(),
+            resourceId: id,
+            sha256: data.sha256
+        });
+        localStorage.setItem("myUploads", JSON.stringify(uploads));
+
+        result.innerHTML = `
+            <div class="alert alert-success">
+                <strong>Upload successful!</strong><br>
+                Resource ID: ${escapeHTML(id)}<br>
+                Verified replicas: ${escapeHTML((data.verified_nodes || []).map(node => `Node ${node}`).join(", "))}<br>
+                Replica count: ${data.verified_replica_count} / ${data.required_quorum}<br>
+                File size: ${file.size} bytes<br>
+                SHA-256: ${escapeHTML(data.sha256)}
+            </div>`;
+
+        document.getElementById("uploadForm").reset();
+
+    } catch (error) {
+        result.innerHTML = `
+            <div class="alert alert-danger">
+                Upload failed: ${escapeHTML(error.message)}
+            </div>`;
+    }
+});
+
+function escapeHTML(value) {
+    const div = document.createElement("div");
+    div.textContent = value;
+    return div.innerHTML;
+}
+</script>
+</body>
+</html>

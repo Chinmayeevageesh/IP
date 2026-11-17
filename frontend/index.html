@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusConnect - Student Dashboard</title>
+
+    <link href="/static/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+        }
+
+        .sidebar-brand-text {
+            font-size: 1.1rem;
+        }
+
+        .dashboard-title {
+            font-weight: 800;
+            color: #343a40;
+        }
+
+        .welcome-text {
+            color: #858796;
+        }
+
+        .stat-card {
+            min-height: 115px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #5a5c69;
+        }
+
+        .resource-card {
+            border-left: 4px solid #4e73df;
+        }
+
+        .node-status {
+            font-weight: 700;
+        }
+
+        .status-online {
+            color: #1cc88a;
+        }
+
+        .status-offline {
+            color: #e74a3b;
+        }
+
+        .refresh-text {
+            font-size: 0.8rem;
+            color: #858796;
+        }
+
+        .quick-action {
+            text-decoration: none !important;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-2px);
+            transition: 0.2s;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+
+    <div id="wrapper">
+
+        <!-- Sidebar -->
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion"
+            id="accordionSidebar">
+
+            <a class="sidebar-brand d-flex align-items-center justify-content-center"
+                href="/portal/index.html">
+                <div class="sidebar-brand-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="sidebar-brand-text mx-3">CampusConnect</div>
+            </a>
+
+            <hr class="sidebar-divider my-0">
+
+            <li class="nav-item active">
+                <a class="nav-link" href="/portal/index.html">
+                    <i class="fas fa-fw fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-heading">STUDENT MENU</div>
+
+            <li class="nav-item">
+                <a class="nav-link" href="/portal/browse.html">
+                    <i class="fas fa-fw fa-book-open"></i>
+                    <span>Browse Resources</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="/portal/upload.html">
+                    <i class="fas fa-fw fa-upload"></i>
+                    <span>Upload Resources</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="/portal/my-uploads.html">
+                    <i class="fas fa-fw fa-folder"></i>
+                    <span>My Uploads</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider">
+
+            <div class="sidebar-heading">CAMPUS NETWORK</div>
+
+            <li class="nav-item">
+                <a class="nav-link" href="/dashboard">
+                    <i class="fas fa-fw fa-network-wired"></i>
+                    <span>Network Status</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="/portal/help.html">
+                    <i class="fas fa-fw fa-question-circle"></i>
+                    <span>Help</span>
+                </a>
+            </li>
+
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+
+            <div class="sidebar-card d-none d-lg-flex">
+                <i class="fas fa-wifi fa-2x mb-3 text-white"></i>
+                <p class="text-center mb-2">
+                    <strong>Stay Connected!</strong>
+                    Access and share academic resources across the campus network.
+                </p>
+            </div>
+
+        </ul>
+        <!-- End Sidebar -->
+
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+                    <button id="sidebarToggleTop"
+                        class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <div class="d-none d-sm-inline-block ml-3">
+                        <span class="text-gray-600 font-weight-bold">
+                            Student Resource Portal
+                        </span>
+                    </div>
+
+                    <ul class="navbar-nav ml-auto">
+
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown"
+                                role="button" data-toggle="dropdown">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    Student
+                                </span>
+                                <i class="fas fa-user-circle fa-2x text-gray-400"></i>
+                            </a>
+
+                            <div class="dropdown-menu dropdown-menu-right shadow">
+                                <a class="dropdown-item" href="/portal/help.html">
+                                    <i class="fas fa-question-circle mr-2 text-gray-400"></i>
+                                    Help
+                                </a>
+                            </div>
+                        </li>
+
+                    </ul>
+                </nav>
+                <!-- End Topbar -->
+
+
+                <!-- Main Content -->
+                <div class="container-fluid">
+
+                    <!-- Heading -->
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <div>
+                            <h1 class="h3 mb-1 dashboard-title">Student Dashboard</h1>
+                            <p class="welcome-text mb-0">
+                                Welcome to CampusConnect! Access and share academic resources easily.
+                            </p>
+                        </div>
+
+                        <span class="refresh-text">
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            Auto-refreshes every 10 seconds
+                        </span>
+                    </div>
+
+
+                    <!-- Network Connection Alert -->
+                    <div id="networkAlert" class="alert alert-info" role="alert">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>
+                        Checking campus network connection...
+                    </div>
+
+
+                    <!-- Statistics -->
+                    <div class="row">
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-2 stat-card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="stat-label text-primary mb-1">
+                                                Available Resources
+                                            </div>
+                                            <div id="availableResources" class="stat-value">
+                                                Loading...
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-book fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2 stat-card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="stat-label text-success mb-1">
+                                                Online Nodes
+                                            </div>
+                                            <div id="onlineNodes" class="stat-value">
+                                                Loading...
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-server fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-2 stat-card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="stat-label text-info mb-1">
+                                                Resource Copies
+                                            </div>
+                                            <div id="resourceCopies" class="stat-value">
+                                                Loading...
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-copy fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-2 stat-card">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="stat-label text-warning mb-1">
+                                                Offline Nodes
+                                            </div>
+                                            <div id="offlineNodes" class="stat-value">
+                                                Loading...
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-exclamation-circle fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Quick Actions -->
+                    <div class="row">
+
+                        <div class="col-lg-6 mb-4">
+                            <a href="/portal/browse.html" class="quick-action">
+                                <div class="card shadow mb-4 h-100">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col">
+                                                <h5 class="font-weight-bold text-primary">
+                                                    <i class="fas fa-search mr-2"></i>
+                                                    Browse Resources
+                                                </h5>
+                                                <p class="text-gray-600 mb-0">
+                                                    Find and download academic notes, documents and study materials.
+                                                </p>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-book-open fa-3x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+
+                        <div class="col-lg-6 mb-4">
+                            <a href="/portal/upload.html" class="quick-action">
+                                <div class="card shadow mb-4 h-100">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col">
+                                                <h5 class="font-weight-bold text-success">
+                                                    <i class="fas fa-cloud-upload-alt mr-2"></i>
+                                                    Upload Resources
+                                                </h5>
+                                                <p class="text-gray-600 mb-0">
+                                                    Share useful academic resources with other students.
+                                                </p>
+                                            </div>
+                                            <div class="col-auto">
+                                                <i class="fas fa-file-upload fa-3x text-gray-300"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Network Nodes -->
+                    <div class="card shadow mb-4">
+
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">
+                                <i class="fas fa-network-wired mr-2"></i>
+                                Campus Network Overview
+                            </h6>
+
+                            <a href="/dashboard" class="btn btn-sm btn-primary">
+                                View Details
+                            </a>
+                        </div>
+
+                        <div class="card-body">
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Node</th>
+                                            <th>Connection Status</th>
+                                            <th>Resources Available</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="nodeTableBody">
+                                        <tr>
+                                            <td colspan="3" class="text-center">
+                                                Checking nodes...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <!-- Information -->
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            <h6 class="font-weight-bold text-primary">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                About CampusConnect
+                            </h6>
+                            <p class="mb-0 text-gray-600">
+                                CampusConnect is an offline-first academic resource sharing
+                                platform designed to help students access and share learning
+                                materials through a distributed campus network.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- End Container -->
+
+            </div>
+
+
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>CampusConnect | Offline-First Campus Academic Resource Network</span>
+                    </div>
+                </div>
+            </footer>
+
+        </div>
+        <!-- End Content Wrapper -->
+
+    </div>
+
+
+    <!-- Scroll to Top -->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+
+    <!-- JavaScript -->
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/static/js/sb-admin-2.min.js"></script>
+
+
+    <script>
+        async function loadDashboard() {
+            const alert = document.getElementById("networkAlert");
+            try {
+                const [overviewResponse, resourcesResponse] = await Promise.all([
+                    fetch("/api/overview", { cache: "no-store" }),
+                    fetch("/api/resources", { cache: "no-store" })
+                ]);
+                if (!overviewResponse.ok || !resourcesResponse.ok) {
+                    throw new Error("Campus API is unavailable.");
+                }
+
+                const overview = await overviewResponse.json();
+                const inventory = await resourcesResponse.json();
+                const nodes = overview.nodes;
+                const copies = inventory.resources.reduce(
+                    (total, resource) => total + resource.replica_count,
+                    0
+                );
+                const rows = nodes.map(node => `
+                    <tr>
+                        <td><strong>Node ${node.node_id}</strong></td>
+                        <td>
+                            <span class="node-status ${node.online ? "status-online" : "status-offline"}">
+                                <i class="fas fa-circle mr-1"></i>${node.online ? "Online" : "Offline"}
+                            </span>
+                        </td>
+                        <td>${node.resources.length}</td>
+                    </tr>
+                `);
+
+                document.getElementById("availableResources").textContent =
+                    inventory.resources.length;
+                document.getElementById("onlineNodes").textContent =
+                    `${overview.online_nodes} / ${nodes.length}`;
+                document.getElementById("resourceCopies").textContent = copies;
+                document.getElementById("offlineNodes").textContent =
+                    overview.offline_nodes;
+                document.getElementById("nodeTableBody").innerHTML =
+                    rows.join("");
+
+                if (overview.online_nodes === nodes.length) {
+                    alert.className = "alert alert-success";
+                    alert.textContent = "All campus nodes are connected.";
+                } else if (overview.online_nodes > 0) {
+                    alert.className = "alert alert-warning";
+                    alert.textContent = "Some campus nodes are unavailable.";
+                } else {
+                    alert.className = "alert alert-danger";
+                    alert.textContent = "No campus nodes are reachable.";
+                }
+            } catch (error) {
+                alert.className = "alert alert-danger";
+                alert.textContent =
+                    `Unable to load campus status: ${error.message}`;
+            }
+        }
+
+        loadDashboard();
+
+        setInterval(loadDashboard, 10000);
+    </script>
+
+</body>
+</html>

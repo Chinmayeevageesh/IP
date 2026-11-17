@@ -3,4 +3,16 @@ __pycache__/
 .venv/
 venv/
 storage/
+storage_A/
+storage_B/
+storage_C/
+storage_D/
+storage_NODE/
+storage_admin/
 .env
+
+# Local test artifacts
+.pytest_cache/
+*.log
+create_test_pdf.py
+sample_assignment_valid.pdf
